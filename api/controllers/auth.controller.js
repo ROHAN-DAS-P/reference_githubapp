@@ -29,3 +29,12 @@ export const repo = (req, res) => {
     res.sendFile(__dirname + "../client/src/pages/repo.jsx")
 }
 
+export const signOut = async (req, res, next) => {
+    try {
+        res.clearCookie('access_token');
+        res.status(200).json('User signed out successfully');
+    } catch (error) {
+        next(error);
+    }
+    
+}

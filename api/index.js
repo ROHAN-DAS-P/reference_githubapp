@@ -8,6 +8,8 @@ import session from 'express-session';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import cookieParser from 'cookie-parser';
+
 
 // Authentication dependencies
 import passport from 'passport';
@@ -25,6 +27,7 @@ import { ensureAuth } from './middleware/authMiddleware.js'
 
 
 const app = express();
+app.use(cookieParser());
 app.use(express.json());
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use(helmet());

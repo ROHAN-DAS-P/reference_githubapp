@@ -1,6 +1,26 @@
 import React from 'react'
 import { FaSearch } from 'react-icons/fa'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
+
+const handleSignOut = async () => {
+    try {
+        const res = await fetch('/api/auth/signout');
+        const data = await res.json();
+        if (res.ok) {
+      // Optional: redirect or show a message
+        window.location.href = '/';
+
+        }
+        if (data.success === false) {
+            return;
+        } 
+    } catch (error) {
+        console.log('could not log out', error);
+    }
+
+
+}
 
 
 export default function Header() {
@@ -27,9 +47,7 @@ export default function Header() {
                     <li className='hidden sm:inline text-slate-700 hover:underline'>Home</li>
                 </Link>
                 
-                <Link to="/signin">
-                    <li className=' text-slate-700 hover:underline'>Sign in</li>
-                </Link>
+                <spam onClick = {handleSignOut} className = 'text-red-700 cursor-pointer'>Sign Out</spam>
             </ul>
         </div>
 
