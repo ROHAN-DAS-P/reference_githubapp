@@ -9,7 +9,7 @@ passport.use(new GitHubStrategy({
   callbackURL: "http://localhost:3000/api/auth/github/callback"
 },
 (accessToken, refreshToken, profile, done) => {
-  console.log("GitHub access token:", accessToken);
+
   if (!accessToken) {
     return done(new Error("Failed to obtain access token"));
   }

@@ -12,8 +12,8 @@ export const git = (req,res) => {
 
 export const github_callback = async (req, res, next) => {
     try {
-        const token = jwt.sign({ id: req.user.id, username: req.user.username }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.cookie('access_token',token, {httpOnly: true});
+        const token = jwt.sign({ id: req.user.id, username: req.user.username,accessToken: req.user.accessToken, }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        res.cookie('access_token',token, {httpOnly: true, secure: process.env.NODE_ENV === 'production',});
         res.redirect(`http://localhost:5173/home`);
     } catch (error) {
         next(error);

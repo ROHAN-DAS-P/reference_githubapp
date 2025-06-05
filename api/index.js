@@ -22,7 +22,7 @@ import axios from 'axios';
 import userRouter from "./routes/auth.route.js"
 import repoRouter from "./routes/repo.route.js"
 import './config/passport.js';
-import { ensureAuth } from './middleware/authMiddleware.js'
+
 
 
 
@@ -37,7 +37,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use("/api/auth", userRouter);
-app.use('/api/repo', ensureAuth, repoRouter);
+app.use('/api/repo', repoRouter);
 
 
 app.use((err, req, res, next) => {
