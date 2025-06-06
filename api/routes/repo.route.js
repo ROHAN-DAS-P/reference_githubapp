@@ -3,20 +3,14 @@ import passport from "passport";
 import jwt from 'jsonwebtoken';
 import axios from "axios";
 import { ensureAuth } from "../middleware/authMiddleware.js";
+import { repo, getRepoById, getPullRequests,getIssues,searchRepos } from "../controllers/repo.controller.js"
 
 const router = express.Router();
 
-router.get('/',ensureAuth, async (req, res) => {
-    
-  try {
-    const response = await axios.get(`https://api.github.com/user/repos`, {
-      headers: { Authorization: `token ${req.user.accessToken}` },
-    });
-    res.json(response.data);
-  } catch (err) {
-    console.error('GitHub API error:', err.response?.data || err.message);
-    res.status(500).json({ error: 'Error fetching repos' });
-  }
-});
+router.get('/',ensureAuth, repo);
+router.get('/:id', ensureAuth, getRepoById);
+router.get('/:id/pull', ensureAuth, getPullRequests);
+router.get('/:id/issues', ensureAuth, getIssues);
+router.get('/search', ensureAuth, searchRepos);
 
 export default router;

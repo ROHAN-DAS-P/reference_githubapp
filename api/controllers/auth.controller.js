@@ -25,9 +25,7 @@ export const home = (req,res) => {
     res.send(req.body);
 }
 
-export const repo = (req, res) => {
-    res.sendFile(__dirname + "../client/src/pages/repo.jsx")
-}
+
 
 export const signOut = async (req, res, next) => {
     try {

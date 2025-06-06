@@ -4,7 +4,7 @@ dotenv.config();
 
 // Core dependencies
 import express from 'express';
-import session from 'express-session';
+
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -21,6 +21,7 @@ import axios from 'axios';
 
 import userRouter from "./routes/auth.route.js"
 import repoRouter from "./routes/repo.route.js"
+
 import './config/passport.js';
 
 
@@ -32,12 +33,13 @@ app.use(express.json());
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use(helmet());
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
-app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: false }));
+
 app.use(passport.initialize());
-app.use(passport.session());
+
 
 app.use("/api/auth", userRouter);
 app.use('/api/repo', repoRouter);
+
 
 
 app.use((err, req, res, next) => {

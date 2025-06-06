@@ -18,6 +18,7 @@ passport.use(new GitHubStrategy({
 }
 ));
 
+/*
 passport.serializeUser((user, done) => {
   done(null, user);
 });
@@ -25,3 +26,4 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser((obj, done) => {
   done(null, obj);
 });
+*/
