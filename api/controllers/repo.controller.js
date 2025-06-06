@@ -117,6 +117,7 @@ export const getIssues = async (req, res, next) => {
 
 
 export const searchRepos = async (req, res, next) => {
+    
     try {
         const { q, type } = req.query;
 
@@ -168,9 +169,12 @@ export const searchRepos = async (req, res, next) => {
         else {
             return res.status(400).json({ error: 'Invalid type parameter. Must be "user" or "global".' });
         }
-    } catch (err) {
-        console.error('GitHub API error (search):', err.response?.data || err.message);
-        res.status(500).json({ error: 'Error searching repositories' });
+    } catch (error) {
+        console.error('Error in searchRepos:', error.response?.data || error.message);
+        next({
+            statusCode: error.response?.status || 500,
+            message: error.response?.data?.message || error.message || 'Error in searchRepos',
+        });
     }
 };
 
