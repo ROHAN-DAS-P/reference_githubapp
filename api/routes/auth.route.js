@@ -11,7 +11,7 @@ router.get('/', home);
 router.get('/github', passport.authenticate('github', { scope: ['user', 'repo'] }));
 
 router.get('/github/callback', passport.authenticate('github', { failureRedirect: '/', session: false }), github_callback);
-router.get('/signout',signOut)
+router.post('/signout',signOut)
 
 
 

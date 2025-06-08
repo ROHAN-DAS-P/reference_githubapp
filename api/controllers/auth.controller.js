@@ -30,7 +30,7 @@ export const home = (req,res) => {
 export const signOut = async (req, res, next) => {
     try {
         res.clearCookie('access_token');
-        res.status(200).json('User signed out successfully');
+        res.status(200).json({ success: true, message: 'User signed out successfully' });
     } catch (error) {
         next(error);
     }
