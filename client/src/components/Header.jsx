@@ -48,7 +48,7 @@ export default function Header() {
             <ul className='flex gap-4'>
                 
                 
-                <spam onClick = {handleSignOut} className = 'text-red-700 cursor-pointer'>Sign Out</spam>
+                <span onClick = {handleSignOut} className = 'text-red-700 cursor-pointer'>Sign Out</span>
             </ul>
         </div>
 
