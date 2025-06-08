@@ -9,7 +9,7 @@ export default function Home() {
     <div>
       <Header />
       <div className="flex flex-col items-center justify-center mt-10 space-y-6">
-        <h1 className="text-3xl font-bold text-gray-800">GitHub Dashboard 🚀</h1>
+        <h1 className="text-3xl font-bold text-gray-800">GitHub Dashboard </h1>
         <p className="text-gray-600 text-center max-w-md">
           Welcome! You can explore your GitHub data below. Choose an option to continue:
         </p>
