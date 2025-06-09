@@ -1,35 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
+import debounce from 'lodash.debounce';
 import Header from '../components/Header';
 
 export default function Search() {
   const [query, setQuery] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
   const [type, setType] = useState('user');
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+
+  const fetchSuggestions = async (q) => {
+    try {
+      const res = await fetch(`/api/repo/search?q=${encodeURIComponent(q)}&type=${type}`);
+      const data = await res.json();
+      setSuggestions(data);
+    } catch (error) {
+      console.error('Error fetching suggestions:', error);
+    }
+  };
+
+  const debouncedFetch = useCallback(
+    debounce((q) => {
+      if (q) {
+        fetchSuggestions(q);
+      } else {
+        setSuggestions([]);
+      }
+    }, 300),
+    [type]
+  );
+
+  const handleInputChange = (e) => {
+    const newQuery = e.target.value;
+    setQuery(newQuery);
+    debouncedFetch(newQuery);
+    setSearchResults([]); // clear old results if typing new query
+  };
 
   const handleSearch = async () => {
     if (!query) return;
-
-    setLoading(true);
-    setError('');
     try {
-      const res = await fetch(`/api/repo/search?q=${encodeURIComponent(query)}&type=${type}`, {
-        credentials: 'include',
-      });
-      if (!res.ok) {
-        throw new Error('Search failed');
-      }
+      const res = await fetch(`/api/repo/search?q=${encodeURIComponent(query)}&type=${type}`);
       const data = await res.json();
-      setResults(data);
-    } catch (err) {
-      setError(err.message);
+      setSearchResults(data);
+      setSuggestions([]); // hide suggestions on search
+    } catch (error) {
+      console.error('Error fetching search results:', error);
     }
-    setLoading(false);
   };
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
+      e.preventDefault();
       handleSearch();
     }
   };
@@ -37,71 +58,117 @@ export default function Search() {
   return (
     <div>
       <Header />
-      <div className="max-w-4xl mx-auto p-6">
-        <h2 className="text-3xl font-bold mb-6">🔍 Search Repositories</h2>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-6 text-center">Search Repositories</h1>
 
-        <div className="flex items-center space-x-4 mb-4">
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Type repository name..."
-            className="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-400"
-          />
-
-          <select
-            value={type}
-            onChange={(e) => setType(e.target.value)}
-            className="p-3 border border-gray-300 rounded-lg"
+      {/* Row with Filter buttons + Input + Clear + Search button */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-4 sm:space-y-0 mb-6">
+        {/* Filter Buttons */}
+        <div className="flex space-x-2">
+          <button
+            className={`px-4 py-2 rounded-lg border ${
+              type === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
+            }`}
+            onClick={() => {
+              setType('user');
+              setSuggestions([]);
+              setSearchResults([]);
+            }}
           >
-            <option value="user">My Repositories</option>
-            <option value="global">Global Repositories</option>
-          </select>
+            My Repositories
+          </button>
+          <button
+            className={`px-4 py-2 rounded-lg border ${
+              type === 'global' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
+            }`}
+            onClick={() => {
+              setType('global');
+              setSuggestions([]);
+              setSearchResults([]);
+            }}
+          >
+            Global Repositories
+          </button>
+        </div>
 
+        {/* Input + Clear + Search */}
+        <div className="flex flex-grow space-x-2">
+          <div className="relative flex-grow">
+            <input
+              type="text"
+              placeholder="Search Repositories..."
+              value={query}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 pr-12 focus:outline-none focus:ring focus:border-blue-300"
+            />
+            {query && (
+              <button
+                onClick={() => {
+                  setQuery('');
+                  setSuggestions([]);
+                  setSearchResults([]);
+                }}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              >
+                Clear
+              </button>
+            )}
+          </div>
           <button
             onClick={handleSearch}
-            className="bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-lg shadow"
+            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg"
           >
             Search
           </button>
         </div>
+      </div>
 
-        {loading && <p className="text-blue-500">Loading results...</p>}
-        {error && <p className="text-red-500">Error: {error}</p>}
-
-        {results.length > 0 && (
-          <div className="mt-6 space-y-4">
-            {results.map((repo) => (
-              <div
-                key={repo.id}
-                className="border border-gray-300 rounded-lg p-4 shadow hover:shadow-lg transition"
+      {/* Suggestions only if no search result yet */}
+      {suggestions.length > 0 && searchResults.length === 0 && (
+        <ul className="mt-2 space-y-2">
+          {suggestions.map((repo) => (
+            <li
+              key={repo.id}
+              className="p-3 bg-white rounded shadow hover:bg-gray-50 transition"
+            >
+              <a
+                href={repo.html_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 font-semibold"
               >
-                <h3 className="text-xl font-bold text-blue-700">{repo.full_name}</h3>
-                <p className="text-gray-700">{repo.description || 'No description provided.'}</p>
-                {repo.stars !== undefined && (
-                  <p className="text-gray-600">⭐ {repo.stars} stars</p>
-                )}
-                {repo.owner && (
-                  <p className="text-gray-600">👤 Owner: {repo.owner}</p>
-                )}
+                {repo.full_name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* Search results */}
+      {searchResults.length > 0 && (
+        <>
+          <h2 className="text-xl font-semibold mt-6 mb-2">Search Results:</h2>
+          <ul className="space-y-2">
+            {searchResults.map((repo) => (
+              <li
+                key={repo.id}
+                className="p-3 bg-white rounded shadow hover:bg-gray-50 transition"
+              >
                 <a
                   href={repo.html_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 underline mt-2 inline-block"
+                  className="text-blue-600 font-semibold"
                 >
-                  View on GitHub
+                  {repo.full_name}
                 </a>
-              </div>
+              </li>
             ))}
-          </div>
-        )}
-
-        {results.length === 0 && !loading && query && (
-          <p className="text-gray-500 mt-4">No results found.</p>
-        )}
-      </div>
+          </ul>
+        </>
+      )}
+    </div>
     </div>
   );
 }
