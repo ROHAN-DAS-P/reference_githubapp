@@ -15,6 +15,11 @@ export default function RepoDetails() {
         const res = await fetch(`/api/repo/${id}`, {
           credentials: 'include',
         });
+        if (res.status === 401) {
+          // Token expired → redirect to login
+          window.location.href = '/';
+          return;
+        }
         if (!res.ok) {
           throw new Error('Failed to fetch repo details');
         }

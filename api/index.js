@@ -43,13 +43,18 @@ app.use('/api/repo', repoRouter);
 
 
 app.use((err, req, res, next) => {
-    const statusCode = err.statusCode || 500;
-    const message = err.message || 'Internal Server Error';
-    return res.status(statusCode).json({
-        success: false,
-        statusCode,
-        message,
-    });
+  if (res.headersSent) {
+    // If headers already sent, let Express handle the error
+    return next(err);
+  }
+
+  const statusCode = err.statusCode || 500;
+  const message = err.message || 'Internal Server Error';
+  return res.status(statusCode).json({
+    success: false,
+    statusCode,
+    message,
+  });
 });
 
 

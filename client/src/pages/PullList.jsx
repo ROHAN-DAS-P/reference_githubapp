@@ -14,6 +14,13 @@ export default function PullList() {
         const res = await fetch(`/api/repo/${id}/pull`, {
           credentials: 'include',
         });
+
+        if (res.status === 401) {
+          // Token expired → redirect to login
+          window.location.href = '/';
+          return;
+        }
+
         if (!res.ok) {
           throw new Error('Failed to fetch pull requests');
         }

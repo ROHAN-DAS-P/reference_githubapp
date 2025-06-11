@@ -74,7 +74,7 @@ export const getPullRequests = async (req, res, next) => {
 
     res.json(pullsResponse.data);
     } catch (error) {
-        next(error);
+        if (!res.headersSent) next(error);
     }
 };
 

@@ -14,6 +14,14 @@ export default function RepoList() {
         const res = await fetch('/api/repo', {
           credentials: 'include',
         });
+
+        
+        if (res.status === 401) {
+          // Token expired → redirect to login
+          window.location.href = '/';
+          return;
+        }
+
         const data = await res.json();
 
         if (res.ok) {
